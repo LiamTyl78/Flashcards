@@ -16,7 +16,7 @@ public class CardSet {
     public void newFlashcard(){
         RandomInteger random = new RandomInteger(0, 3);
             flashcard = new Flashcard(questions.get(currentQuestion).getImageLink(),questions.get(currentQuestion).getQuestion(),questions.get(currentQuestion).getAnswer(),this);
-            random.SetMax(3);
+            flashcard.setTitle(currentQuestion,questions.size());
             random.SetMax(questions.size() - 1);
             int index = random.Generate();
             for (int i = 0; i < 3 && i < questions.size() - 1; i++) {
@@ -50,7 +50,12 @@ public class CardSet {
             currentQuestion++;
         }
         else{
-            flashcard.correct("You got " + correct + " answers correct out of " + questions.size());
+            float percent = ((float)correct / questions.size()) * 100;
+            if (percent >= 80) {
+                flashcard.correct("You got " + correct + " answers correct out of " + questions.size() +  " for " + percent  + "%! You are doing great!");
+            } else {
+                flashcard.correct("You got " + correct + " answers correct out of " + questions.size() +  " for " + percent  + "%. Please practice some more!");
+            }
             return;
         }
         newFlashcard();
@@ -90,7 +95,7 @@ public class CardSet {
     private int chooseSet() {
         int ans = 0;
         Scanner in = new Scanner(System.in);
-        System.out.println("Please chooes a set to study\n1) Nervous System Terms\n2) Muscle Positions ");
+        System.out.println("Please choose a set to study\n1) Nervous System Terms\n2) Muscle Positions ");
         while (ans > sets || ans < 1) {
             ans = in.nextInt();
         }
