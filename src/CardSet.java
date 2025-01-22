@@ -4,32 +4,43 @@ import java.util.*;
 public class CardSet {
     private ArrayList<Question> questions = new ArrayList<>();
     private ArrayList<String> answers = new ArrayList<>();
-    private int set, currentQuestion, correct = 0, ansPos, sets = 2;
+    private int currentQuestionNum, correct = 0, ansPos;
     private Flashcard flashcard;
+    private StartWindow start;
+    private RandomInteger random = new RandomInteger(0, 3);
 
-    public CardSet(){
-        this.set = chooseSet();
-        init(set);
+    public CardSet(String path){
+        loadQuestions(path);
         shuffle();
+        this.start = App.start;
+        flashcard = new Flashcard(this);
     }
-
-    public void newFlashcard(){
-        RandomInteger random = new RandomInteger(0, 3);
-            flashcard = new Flashcard(questions.get(currentQuestion).getImageLink(),questions.get(currentQuestion).getQuestion(),questions.get(currentQuestion).getAnswer(),this);
-            flashcard.setTitle(currentQuestion,questions.size());
-            random.SetMax(questions.size() - 1);
-            int index = random.Generate();
-            for (int i = 0; i < 3 && i < questions.size() - 1; i++) {
-                while (answers.contains(questions.get(index).getAnswer()) || questions.get(currentQuestion).getAnswer().equals(questions.get(index).getAnswer())) {
-                    index = random.Generate();
-                }
-                answers.add(questions.get(index).getAnswer());
+    
+    public void Flashcards(){
+        System.out.println("Loading Flashcard "+ (currentQuestionNum + 1) + "...");
+        
+        random.SetMax(questions.size() - 1);
+        flashcard.updateFlashcard(questions.get(currentQuestionNum).getImageLink(),questions.get(currentQuestionNum).getQuestion());
+        flashcard.setTitle(currentQuestionNum,questions.size());
+        int index = random.Generate();
+        for (int i = 0; i < 3 && i < questions.size() - 1; i++) {
+            boolean containsCurrent = true;
+            while ( containsCurrent || questions.get(currentQuestionNum).getAnswer().equals(questions.get(index).getAnswer())) {
+                index = random.Generate();
+                containsCurrent = answers.contains(questions.get(index).getAnswer());
             }
-            random.SetMax(answers.size() - 1);
-            ansPos = random.Generate();
-            answers.add(ansPos, questions.get(currentQuestion).getAnswer());
-            flashcard.setButtons(answers);
+            String correctAnswer = questions.get(index).getAnswer();
+            answers.add(correctAnswer);
+        }
+        random.SetMax(answers.size() - 1);
+        ansPos = random.Generate();
+        answers.add(ansPos, questions.get(currentQuestionNum).getAnswer());
+        int buttonsShown = answers.size();
+        flashcard.setButtons(answers, buttonsShown);
+        if (currentQuestionNum < (questions.size())) {
             flashcard.show();
+        }
+        System.out.println("Done.");
             
     }
 
@@ -38,27 +49,29 @@ public class CardSet {
             flashcard.correct("Correct!");
             correct++;
         } else {
-            flashcard.incorrect("Incorrect, the correct answer was \"" + questions.get(currentQuestion).getAnswer() + "\"");
+            flashcard.incorrect("Incorrect, the correct answer was \"" + questions.get(currentQuestionNum).getAnswer() + "\"");
         }
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
         }
-        flashcard.dispose();
         answers.clear();
-        if (currentQuestion < (questions.size() - 1)) {
-            currentQuestion++;
+        if (currentQuestionNum < (questions.size()-1)) {
+            currentQuestionNum++;
         }
         else{
+            flashcard.hide();
             float percent = ((float)correct / questions.size()) * 100;
+            start.show();
             if (percent >= 80) {
-                flashcard.correct("You got " + correct + " answers correct out of " + questions.size() +  " for " + percent  + "%! You are doing great!");
+                start.correct("You got " + correct + " answers correct out of " + questions.size() +  " for " + percent  + "%! You are doing great!");
             } else {
-                flashcard.correct("You got " + correct + " answers correct out of " + questions.size() +  " for " + percent  + "%. Please practice some more!");
+                start.correct("You got " + correct + " answers correct out of " + questions.size() +  " for " + percent  + "%. Please practice some more!");
             }
+            flashcard.dispose();
             return;
         }
-        newFlashcard();
+        Flashcards();
     }
 
     private void shuffle() {
@@ -71,15 +84,7 @@ public class CardSet {
         }
     }
 
-    private void init(int set) {
-        String filepath = "";
-        if (set == 1) {// nervous system terms
-            filepath = "src/cardsets/NervousSystem.csv";
-        }
-        if (set == 2) {
-            filepath = "src//cardsets//MusclePosistions.csv";
-        }
-        
+    private void loadQuestions(String filepath) {
         try {
             Scanner sc = new Scanner(new File(filepath));
             sc.useDelimiter(",");
@@ -89,17 +94,7 @@ public class CardSet {
             }
             sc.close();
         } catch (Exception e) {
+            
         }
-    }
-    
-    private int chooseSet() {
-        int ans = 0;
-        Scanner in = new Scanner(System.in);
-        System.out.println("Please choose a set to study\n1) Nervous System Terms\n2) Muscle Positions ");
-        while (ans > sets || ans < 1) {
-            ans = in.nextInt();
-        }
-        in.close();
-        return ans;
     }
 }
