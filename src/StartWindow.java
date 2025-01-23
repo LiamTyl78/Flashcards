@@ -89,7 +89,7 @@ public class StartWindow {
             {
                 if (!flashcardsList.isSelectionEmpty()) {
                     java.io.File selectedFile = new java.io.File(flashcardsList.getSelectedValue().getPath());
-                    SwingUtilities.invokeLater(() -> new DeckModifyPane(selectedFile));
+                    SwingUtilities.invokeLater(() -> new DeckModifyPane(selectedFile, frame));
                 }
             }
         });

@@ -11,6 +11,7 @@ import java.io.File;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,7 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 public class DeckModifyPane {
-    private JFrame frame;
+    private JDialog frame;
     private JPanel cardSetPanel, buttonPanel;
     private int questionFields;
     private ArrayList<Question> questions = new ArrayList<>();
@@ -31,8 +32,8 @@ public class DeckModifyPane {
      * Constructor for the DeckModifyPane class
      * @param cardset the file to be edited
      */
-    public DeckModifyPane(File cardset){
-        frame = new JFrame("Editing " + cardset.getName());
+    public DeckModifyPane(File cardset, JFrame parent){
+        frame = new JDialog(parent, "Editing " + cardset.getName(), true);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setResizable(false);
         frame.setSize(400, 500);
@@ -69,8 +70,16 @@ public class DeckModifyPane {
             }
         });
 
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                frame.dispose();
+            }
+        });
+
         buttonPanel.add(addButton);
         buttonPanel.add(saveButton);
+        buttonPanel.add(cancelButton);
 
         // set up the scroll pane layout within the frame to be above the button panel
         JScrollPane scrollPane = new JScrollPane(cardSetPanel);
@@ -86,7 +95,7 @@ public class DeckModifyPane {
         JPanel questionPanel = new JPanel();
         questionPanel.setLayout(new BoxLayout(questionPanel, BoxLayout.Y_AXIS));
 
-        JLabel questionLabel = new JLabel("Question " + questionFields++);
+        JLabel questionLabel = new JLabel("Question " + (questionFields++ + 1));
         JTextField termTextField = new JTextField(20);
         termTextField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         termTextField.setText("Term...");
@@ -115,13 +124,28 @@ public class DeckModifyPane {
         defTextField.addFocusListener(new FocusListener() {
             public void focusGained(java.awt.event.FocusEvent e) {
                 if (defTextField.getText().equals("Definition...")) {
-                    defTextField.setText("");  
+                    defTextField.setText("");
                 }
             }
             public void focusLost(java.awt.event.FocusEvent e) {
                 if (defTextField.getText().equals("")) {
                     defTextField.setText("Definition...");
                 }
+            }
+        });
+
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                cardSetPanel.remove(questionPanel);
+                cardSetPanel.remove(defTextField);
+                termTextField.setText("Term...");
+                defTextField.setText("Definition...");
+                cardSetPanel.remove(termTextField);
+                cardSetPanel.remove(deleteButton);
+                cardSetPanel.remove(questionLabel);
+                frame.revalidate();
+                frame.repaint();
             }
         });
 
@@ -133,6 +157,7 @@ public class DeckModifyPane {
         cardSetPanel.add(questionLabel);
         cardSetPanel.add(termTextField);
         cardSetPanel.add(defTextField);
+        cardSetPanel.add(deleteButton);
     }
 
     private void loadFromFile(String filepath) {
@@ -166,6 +191,9 @@ public class DeckModifyPane {
             String term = termFields.get(i).getText();
             String definition = defFields.get(i).getText();
             String image = imageFields.get(i);
+            if (image == null) {
+                image = "na";
+            }
             if (!term.equals("Term...") && !definition.equals("Definition...")) {
                 flashcards.add(new String[]{definition, term, image});
             }
@@ -174,18 +202,22 @@ public class DeckModifyPane {
     }
 
     private void save(File file) {
+        System.out.println("Saving " + file.getName() + "...");
         ArrayList<String[]> flashcards = getFlashcardValues();
 
         try {
             java.io.PrintWriter writer = new java.io.PrintWriter(file);
             writer.println("Definition,Term,Image");
+            int i = 1;
             for (String[] flashcard : flashcards) {
                 writer.println(flashcard[0] + "," + flashcard[1] + "," + flashcard[2] + ",");
+                System.out.println("Question " + i++ + " saved.");
             }
             writer.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("Done.");
 
 
     }
