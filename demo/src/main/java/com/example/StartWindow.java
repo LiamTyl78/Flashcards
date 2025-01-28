@@ -1,3 +1,4 @@
+package com.example;
 import java.awt.event.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +30,7 @@ public class StartWindow {
         frame.setLayout(null);
         frame.setSize(500, 500);
         frame.setResizable(false);
-        frame.setTitle("Study Buddy");
+        frame.setTitle("Flashcards");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         menuBar = new JMenuBar();
@@ -89,7 +90,7 @@ public class StartWindow {
             {
                 if (!flashcardsList.isSelectionEmpty()) {
                     java.io.File selectedFile = new java.io.File(flashcardsList.getSelectedValue().getPath());
-                    SwingUtilities.invokeLater(() -> new DeckModifyPane(selectedFile, frame));
+                    SwingUtilities.invokeLater(() -> new EditStudySetPane(selectedFile, frame));
                 }
             }
         });
@@ -127,7 +128,7 @@ public class StartWindow {
         try (Stream<Path> paths = Files.walk(Paths.get(directoryPath))) {
             paths.filter(path -> path.toString().toLowerCase().endsWith(".csv"))
             .forEach(path -> {
-                files.add(new File(removeFileExtension(path.getFileName().toString()), path.toString()));
+                files.add(new File(removeFileExtension(path.getFileName().toString()), path.toAbsolutePath().toString()));
             });
         } catch (Exception e) {
             e.printStackTrace();

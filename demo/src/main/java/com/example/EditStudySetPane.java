@@ -1,3 +1,4 @@
+package com.example;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -18,7 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-public class DeckModifyPane {
+public class EditStudySetPane {
     private JDialog frame;
     private JPanel cardSetPanel, buttonPanel;
     private int questionFields;
@@ -29,11 +30,11 @@ public class DeckModifyPane {
 
     
     /**
-     * Constructor for the DeckModifyPane class
+     * Constructor for the Deck Modify window that allows users to edit their study set
      * @param cardset the file to be edited
      */
-    public DeckModifyPane(File cardset, JFrame parent){
-        frame = new JDialog(parent, "Editing " + cardset.getName(), true);
+    public EditStudySetPane(File cardset, JFrame parent){
+        frame = new JDialog(parent, "Editing " + removeFileExtension(cardset.getName()), true);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setResizable(false);
         frame.setSize(400, 500);
@@ -45,8 +46,8 @@ public class DeckModifyPane {
         cardSetPanel.setLayout(new BoxLayout(cardSetPanel, BoxLayout.Y_AXIS));
 
         while (questionFields < questionNum) {
-            String term = questions.get(questionFields).getQuestion();
-            String definition = questions.get(questionFields).getAnswer();
+            String term = questions.get(questionFields).getAnswer();
+            String definition = questions.get(questionFields).getQuestion();
             String imageLink = questions.get(questionFields).getImageLink();
             addFlashcardFields(term, definition, imageLink);
         }
@@ -99,7 +100,10 @@ public class DeckModifyPane {
         JTextField termTextField = new JTextField(20);
         termTextField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         termTextField.setText("Term...");
-        if (term != null) {
+        if (term != null && term.equals("na")) {
+            termTextField.setText("");
+        }
+        else if (term != null){
             termTextField.setText(term);
         }
         termTextField.addFocusListener(new FocusListener() {
@@ -118,7 +122,10 @@ public class DeckModifyPane {
         JTextField defTextField = new JTextField(20);
         defTextField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         defTextField.setText("Definition...");
-        if (definition != null) {
+        if (definition != null && definition.equals("na")) {
+            defTextField.setText("");
+        }
+        else if (definition != null){
             defTextField.setText(definition);
         }
         defTextField.addFocusListener(new FocusListener() {
@@ -194,8 +201,14 @@ public class DeckModifyPane {
             if (image == null) {
                 image = "na";
             }
-            if (!term.equals("Term...") && !definition.equals("Definition...")) {
-                flashcards.add(new String[]{definition, term, image});
+            if (term.equals("Term...")) {
+                term = "";
+            }
+            if (definition.equals("Definition...")) {
+                definition = "";
+            }
+            if (!term.equals("") || !definition.equals("")) {
+                flashcards.add(new String[]{term, definition, image});
             }
         }
         return flashcards;
@@ -218,7 +231,13 @@ public class DeckModifyPane {
             e.printStackTrace();
         }
         System.out.println("Done.");
+    }
 
-
+    private String removeFileExtension(String filename){
+        int dotindx = filename.indexOf(".");
+        if (dotindx == -1) {
+            return filename;
+        }
+        return filename.substring(0, dotindx);
     }
 }

@@ -1,3 +1,4 @@
+package com.example;
 
 public class App {
     public static StartWindow start = new StartWindow();

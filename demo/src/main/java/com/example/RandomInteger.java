@@ -1,3 +1,4 @@
+package com.example;
 public class RandomInteger {
     private int min, max, range;
 

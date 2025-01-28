@@ -2,5 +2,7 @@
 /bin
 /lib
 /cardsets
+demo/src/images
 test.csv
 readme.doc
+*.class
