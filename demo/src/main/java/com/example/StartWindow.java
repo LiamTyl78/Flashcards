@@ -28,7 +28,7 @@ public class StartWindow {
         }
         frame = new JFrame();
         frame.setLayout(null);
-        frame.setSize(500, 500);
+        frame.setSize(500, 400);
         frame.setResizable(false);
         frame.setTitle("Flashcards");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -70,7 +70,7 @@ public class StartWindow {
         pane = new JScrollPane(flashcardsList);
         pane.setBounds(50, 50, 400, 200);
         pane.setVisible(true);
-        pane.setSize(400, 200);
+        // pane.setSize(400, 200);
 
         studyButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)

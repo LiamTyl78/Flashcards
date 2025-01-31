@@ -63,6 +63,7 @@ public class CardSet {
         else{
             flashcard.hide();
             float percent = ((float)correct / questions.size()) * 100;
+            percent = (float) (Math.round(percent * 10) / 10.0);
             start.show();
             if (percent >= 80) {
                 start.correct("You got " + correct + " answers correct out of " + questions.size() +  " for " + percent  + "%! You are doing great!");

@@ -1,7 +1,9 @@
 package com.example;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
@@ -11,35 +13,45 @@ import java.io.File;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 public class EditStudySetPane {
+    private static final int FRAME_WIDTH = 400;
+    private static final int FRAME_HEIGHT = 500;
+    private static final int MAX_IMAGE_SIZE = 100;
+    private static final String TERM_PLACEHOLDER = "Term...";
+    private static final String DEFINITION_PLACEHOLDER = "Definition...";
+    
     private JDialog frame;
     private JPanel cardSetPanel, buttonPanel;
     private int questionFields;
     private ArrayList<Question> questions = new ArrayList<>();
     private ArrayList<JTextField> defFields = new ArrayList<>();
     private ArrayList<JTextField> termFields = new ArrayList<>();
-    private ArrayList<String> imageFields = new ArrayList<>();
+    private ArrayList<StringBuilder> imageFields = new ArrayList<>();
 
-    
     /**
-     * Constructor for the Deck Modify window that allows users to edit their study set
+     * Constructor for the Deck Modify window that allows users to edit their study
+     * set
+     * 
      * @param cardset the file to be edited
      */
-    public EditStudySetPane(File cardset, JFrame parent){
+    public EditStudySetPane(File cardset, JFrame parent) {
         frame = new JDialog(parent, "Editing " + removeFileExtension(cardset.getName()), true);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setResizable(false);
-        frame.setSize(400, 500);
+        frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         frame.setLayout(new BorderLayout());
-        
+
         loadFromFile(cardset.getPath());
         int questionNum = questions.size();
         cardSetPanel = new JPanel();
@@ -48,16 +60,17 @@ public class EditStudySetPane {
         while (questionFields < questionNum) {
             String term = questions.get(questionFields).getAnswer();
             String definition = questions.get(questionFields).getQuestion();
-            String imageLink = questions.get(questionFields).getImageLink();
-            addFlashcardFields(term, definition, imageLink);
+            StringBuilder imgPath = new StringBuilder();
+            imgPath.append(questions.get(questionFields).getImageLink());
+            addFlashcardFields(term, definition, imgPath);
         }
         cardSetPanel.add(Box.createVerticalGlue());
 
         buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton addButton = new JButton("Add new...");
         addButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-                addFlashcardFields(null,null,null);
+            public void actionPerformed(ActionEvent e) {
+                addFlashcardFields(null, null, new StringBuilder());
                 frame.revalidate();
                 frame.repaint();
             }
@@ -65,7 +78,7 @@ public class EditStudySetPane {
 
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
+            public void actionPerformed(ActionEvent e) {
                 save(cardset);
                 frame.dispose();
             }
@@ -73,7 +86,7 @@ public class EditStudySetPane {
 
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
+            public void actionPerformed(ActionEvent e) {
                 frame.dispose();
             }
         });
@@ -87,56 +100,57 @@ public class EditStudySetPane {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         frame.add(scrollPane, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
-        
+
         frame.setVisible(true);
 
     }
 
-    private void addFlashcardFields(String term, String definition, String imageLink) {
+    private void addFlashcardFields(String term, String definition, StringBuilder imagePath) {
         JPanel questionPanel = new JPanel();
         questionPanel.setLayout(new BoxLayout(questionPanel, BoxLayout.Y_AXIS));
+        JLabel termLabel = new JLabel("Term:");
+        JLabel defLabel = new JLabel("Defintion:");
 
         JLabel questionLabel = new JLabel("Question " + (questionFields++ + 1));
         JTextField termTextField = new JTextField(20);
+        JLabel image = new JLabel();
+        JButton selectImageButton = new JButton("Select Image...");
+
         termTextField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        termTextField.setText("Term...");
-        if (term != null && term.equals("na")) {
-            termTextField.setText("");
-        }
-        else if (term != null){
+        termTextField.setText(TERM_PLACEHOLDER);
+        if (term != null && !term.equals("na")) {
             termTextField.setText(term);
         }
         termTextField.addFocusListener(new FocusListener() {
             public void focusGained(java.awt.event.FocusEvent e) {
-                if (termTextField.getText().equals("Term...")) {
-                    termTextField.setText("");  
+                if (termTextField.getText().equals(TERM_PLACEHOLDER)) {
+                    termTextField.setText("");
                 }
             }
+
             public void focusLost(java.awt.event.FocusEvent e) {
                 if (termTextField.getText().equals("")) {
-                    termTextField.setText("Term...");
+                    termTextField.setText(TERM_PLACEHOLDER);
                 }
             }
         });
 
         JTextField defTextField = new JTextField(20);
         defTextField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        defTextField.setText("Definition...");
-        if (definition != null && definition.equals("na")) {
-            defTextField.setText("");
-        }
-        else if (definition != null){
+        defTextField.setText(DEFINITION_PLACEHOLDER);
+        if (definition != null && !definition.equals("na")) {
             defTextField.setText(definition);
         }
         defTextField.addFocusListener(new FocusListener() {
             public void focusGained(java.awt.event.FocusEvent e) {
-                if (defTextField.getText().equals("Definition...")) {
+                if (defTextField.getText().equals(DEFINITION_PLACEHOLDER)) {
                     defTextField.setText("");
                 }
             }
+
             public void focusLost(java.awt.event.FocusEvent e) {
                 if (defTextField.getText().equals("")) {
-                    defTextField.setText("Definition...");
+                    defTextField.setText(DEFINITION_PLACEHOLDER);
                 }
             }
         });
@@ -144,27 +158,74 @@ public class EditStudySetPane {
         JButton deleteButton = new JButton("Delete");
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                termTextField.setText(TERM_PLACEHOLDER);
+                defTextField.setText(DEFINITION_PLACEHOLDER);
+                cardSetPanel.remove(termTextField);
                 cardSetPanel.remove(questionPanel);
                 cardSetPanel.remove(defTextField);
-                termTextField.setText("Term...");
-                defTextField.setText("Definition...");
-                cardSetPanel.remove(termTextField);
                 cardSetPanel.remove(deleteButton);
                 cardSetPanel.remove(questionLabel);
+                cardSetPanel.remove(defLabel);
+                cardSetPanel.remove(termLabel);
+                cardSetPanel.remove(image);
+                cardSetPanel.remove(selectImageButton);
                 frame.revalidate();
                 frame.repaint();
             }
         });
 
+        if (imagePath != null) {
+            setImage(image, imagePath);
+        }
+
+        selectImageButton.addActionListener(e -> selectImage(image, imagePath));
+        selectImageButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                
+            }
+        });
+
         termFields.add(termTextField);
         defFields.add(defTextField);
-        imageFields.add(imageLink);
+        imageFields.add(imagePath);
 
         cardSetPanel.add(Box.createVerticalStrut(10));
         cardSetPanel.add(questionLabel);
+        cardSetPanel.add(image);
+        cardSetPanel.add(termLabel);
         cardSetPanel.add(termTextField);
+        cardSetPanel.add(defLabel);
         cardSetPanel.add(defTextField);
+        cardSetPanel.add(selectImageButton);
         cardSetPanel.add(deleteButton);
+    }
+
+    private void selectImage(JLabel image, StringBuilder imagePath){
+        boolean usrSelectingImg = true;
+                while (usrSelectingImg) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    fileChooser.setFileFilter(
+                            new javax.swing.filechooser.FileNameExtensionFilter("Image Fields", "jpg", "png"));
+                    int result = fileChooser.showOpenDialog(frame);
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        java.io.File selectedFile = fileChooser.getSelectedFile();
+                        boolean isJPG = selectedFile.getAbsolutePath().toLowerCase().endsWith(".jpg");
+                        boolean isPNG = selectedFile.getAbsolutePath().toLowerCase().endsWith(".png");
+                        if (!isJPG && !isPNG) {
+                            error("Invalid file type", "Invalid file type, Please select a JPG or PNG file!");
+                        } else {
+                            imagePath.setLength(0);
+                            System.out.println(selectedFile.getPath());
+                            imagePath.append(selectedFile.getAbsolutePath());
+                            usrSelectingImg = false;
+                        }
+                    } else {
+                        usrSelectingImg = false;
+                    }
+                }
+
+                setImage(image, imagePath);
     }
 
     private void loadFromFile(String filepath) {
@@ -174,12 +235,12 @@ public class EditStudySetPane {
             if (sc.hasNextLine()) {
                 sc.nextLine();
             }
-            
+
             while (sc.hasNext()) {
-                String line =  sc.nextLine().trim();
+                String line = sc.nextLine().trim();
                 String[] parts = line.split(",");
-                
-                if (parts.length >= 3){
+
+                if (parts.length >= 3) {
                     String definition = parts[0];
                     String term = parts[1];
                     String image = parts[2];
@@ -188,7 +249,7 @@ public class EditStudySetPane {
             }
             sc.close();
         } catch (Exception e) {
-            
+
         }
     }
 
@@ -197,18 +258,18 @@ public class EditStudySetPane {
         for (int i = 0; i < termFields.size(); i++) {
             String term = termFields.get(i).getText();
             String definition = defFields.get(i).getText();
-            String image = imageFields.get(i);
-            if (image == null) {
+            String image = imageFields.get(i).toString();
+            if (image.equals("")) {
                 image = "na";
             }
-            if (term.equals("Term...")) {
-                term = "";
+            if (term.equals(TERM_PLACEHOLDER)) {
+                term = "na";
             }
-            if (definition.equals("Definition...")) {
-                definition = "";
+            if (definition.equals(DEFINITION_PLACEHOLDER)) {
+                definition = "na";
             }
-            if (!term.equals("") || !definition.equals("")) {
-                flashcards.add(new String[]{term, definition, image});
+            if (!term.equals("na") || !definition.equals("na")) {
+                flashcards.add(new String[] { term, definition, image });
             }
         }
         return flashcards;
@@ -220,7 +281,7 @@ public class EditStudySetPane {
 
         try {
             java.io.PrintWriter writer = new java.io.PrintWriter(file);
-            writer.println("Definition,Term,Image");
+            writer.println("Definition,Term,Image_Path");
             int i = 1;
             for (String[] flashcard : flashcards) {
                 writer.println(flashcard[0] + "," + flashcard[1] + "," + flashcard[2] + ",");
@@ -233,11 +294,38 @@ public class EditStudySetPane {
         System.out.println("Done.");
     }
 
-    private String removeFileExtension(String filename){
+    private String removeFileExtension(String filename) {
         int dotindx = filename.indexOf(".");
         if (dotindx == -1) {
             return filename;
         }
         return filename.substring(0, dotindx);
+    }
+
+    private void setImage(JLabel image, StringBuilder imagePath) {
+        // System.out.println("opening: " + imagePath.toString());
+        ImageIcon originalIcon = new ImageIcon(imagePath.toString());
+        // System.out.println("Width: " + originalIcon.getIconWidth() + " Height: " +
+        // originalIcon.getIconHeight());
+        int originalWidth = originalIcon.getIconWidth();
+        int originalHeight = originalIcon.getIconHeight();
+
+        double widthRatio = (double) MAX_IMAGE_SIZE / originalWidth;
+        double heightRatio = (double) MAX_IMAGE_SIZE / originalHeight;
+        double scale = Math.min(widthRatio, heightRatio);
+
+        int newWidth = (int) (originalWidth * scale);
+        int newHeight = (int) (originalHeight * scale);
+
+        Image originalImage = originalIcon.getImage();
+        Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+        ImageIcon scaledIcon = new ImageIcon(scaledImage);
+        image.setIcon(scaledIcon);
+        image.setSize(originalWidth, originalHeight);
+        image.setVisible(true);
+    }
+
+    private void error(String title, String message) {
+        JOptionPane.showMessageDialog(frame, message, title, JOptionPane.ERROR_MESSAGE);
     }
 }

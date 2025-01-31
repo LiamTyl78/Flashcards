@@ -69,6 +69,11 @@ public class Flashcard {
     }
 
     public void setButtons(ArrayList<String> answers, int buttonsShown){
+        for (int i = 0; i < answers.size(); i++) {
+            if (answers.get(i).equals("na")) {
+                answers.set(i, "");
+            }
+        }
         ans1.setEnabled(false);
         ans1.setText("");
         ans2.setEnabled(false);
