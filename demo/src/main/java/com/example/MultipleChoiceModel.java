@@ -2,44 +2,46 @@ package com.example;
 import java.io.File;
 import java.util.*;
 
-public class CardSet {
-    private ArrayList<Question> questions = new ArrayList<>();
+public class MultipleChoiceModel implements StudyMode{
+    private ArrayList<Card> questions = new ArrayList<>();
     private ArrayList<String> answers = new ArrayList<>();
     private int currentQuestionNum, correct = 0, ansPos;
-    private Flashcard flashcard;
-    private StartWindow start;
+    private MultipleChoiceView multipleChoiceView;
+    private MainMenu start;
     private RandomInteger random = new RandomInteger(0, 3);
 
-    public CardSet(String path){
+    public MultipleChoiceModel(String path){
         loadQuestions(path);
         shuffle();
         this.start = App.start;
-        flashcard = new Flashcard(this);
+        multipleChoiceView = new MultipleChoiceView(this);
     }
-    
-    public void Flashcards(){
-        System.out.println("Loading Flashcard "+ (currentQuestionNum + 1) + "...");
+    @Override
+    public void startMode(){
+        System.out.println("Loading multiple choice question "+ (currentQuestionNum + 1) + "...");
         
         random.SetMax(questions.size() - 1);
-        flashcard.updateFlashcard(questions.get(currentQuestionNum).getImageLink(),questions.get(currentQuestionNum).getQuestion());
-        flashcard.setTitle(currentQuestionNum,questions.size());
+        multipleChoiceView.update(questions.get(currentQuestionNum).getImageLink(),questions.get(currentQuestionNum).getDefinition());
+        multipleChoiceView.setTitle(currentQuestionNum,questions.size());
         int index = random.Generate();
         for (int i = 0; i < 3 && i < questions.size() - 1; i++) {
             boolean containsCurrent = true;
-            while ( containsCurrent || questions.get(currentQuestionNum).getAnswer().equals(questions.get(index).getAnswer())) {
+            boolean equalsAnswer = true;
+            while ( containsCurrent || equalsAnswer) {
                 index = random.Generate();
-                containsCurrent = answers.contains(questions.get(index).getAnswer());
+                containsCurrent = answers.contains(questions.get(index).getTerm());
+                equalsAnswer = questions.get(currentQuestionNum).getTerm().equals(questions.get(index).getTerm());
             }
-            String correctAnswer = questions.get(index).getAnswer();
+            String correctAnswer = questions.get(index).getTerm();
             answers.add(correctAnswer);
         }
         random.SetMax(answers.size() - 1);
         ansPos = random.Generate();
-        answers.add(ansPos, questions.get(currentQuestionNum).getAnswer());
+        answers.add(ansPos, questions.get(currentQuestionNum).getTerm());
         int buttonsShown = answers.size();
-        flashcard.setButtons(answers, buttonsShown);
+        multipleChoiceView.setButtons(answers, buttonsShown);
         if (currentQuestionNum < (questions.size())) {
-            flashcard.show();
+            multipleChoiceView.show();
         }
         System.out.println("Done.");
             
@@ -47,21 +49,17 @@ public class CardSet {
 
     public void checkAnswer(int ans) {
         if (ans == (ansPos + 1)) {
-            flashcard.correct("Correct!");
+            multipleChoiceView.correct("Correct!");
             correct++;
         } else {
-            flashcard.incorrect("Incorrect, the correct answer was \"" + questions.get(currentQuestionNum).getAnswer() + "\"");
-        }
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
+            multipleChoiceView.incorrect("Incorrect, the correct answer was \"" + questions.get(currentQuestionNum).getTerm() + "\"");
         }
         answers.clear();
         if (currentQuestionNum < (questions.size()-1)) {
             currentQuestionNum++;
         }
         else{
-            flashcard.hide();
+            multipleChoiceView.hide();
             float percent = ((float)correct / questions.size()) * 100;
             percent = (float) (Math.round(percent * 10) / 10.0);
             start.show();
@@ -70,17 +68,17 @@ public class CardSet {
             } else {
                 start.correct("You got " + correct + " answers correct out of " + questions.size() +  " for " + percent  + "%. Please practice some more!");
             }
-            flashcard.dispose();
+            multipleChoiceView.dispose();
             return;
         }
-        Flashcards();
+        startMode();
     }
 
     private void shuffle() {
         RandomInteger random = new RandomInteger(0, questions.size() - 1);
         for (int i = 0; i < 40; i++) {
             int randomindex = random.Generate();
-            Question temp = questions.get(randomindex);
+            Card temp = questions.get(randomindex);
             temp = questions.set(random.Generate(), temp);
             questions.set(randomindex, temp);
         }
@@ -92,7 +90,7 @@ public class CardSet {
             sc.useDelimiter(",");
             sc.nextLine();
             while (sc.hasNext()) {
-                questions.add(new Question(sc.next(), sc.next(), sc.next()));
+                questions.add(new Card(sc.next(), sc.next(), sc.next()));
             }
             sc.close();
         } catch (Exception e) {

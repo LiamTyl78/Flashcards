@@ -8,18 +8,17 @@ import java.util.stream.Stream;
 
 import javax.swing.*;
 
-public class StartWindow {
+public class MainMenu {
     private JScrollPane pane;
-    private DefaultListModel<File> list;
+    private DefaultListModel<File> studySets;
     private JFrame frame;
     private JButton studyButton, editButton, helpButton;
-    private CardSet deck;
     private JMenuBar menuBar;
     private JMenu file;
     private ArrayList<File> files = new ArrayList<>();
 
 
-    public StartWindow(){
+    public MainMenu(){
         System.out.println("Loading Main Menu Interface...");
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -61,25 +60,22 @@ public class StartWindow {
         editButton.setBounds(255,300,100,30);
         helpButton.setBounds(200,335,100,30);
         
-        list = new DefaultListModel<>();
+        studySets = new DefaultListModel<>();
 
         updateFlashcardList();
 
-        JList<File> flashcardsList = new JList<>(list);
+        JList<File> studySetList = new JList<>(studySets);
         
-        pane = new JScrollPane(flashcardsList);
+        pane = new JScrollPane(studySetList);
         pane.setBounds(50, 50, 400, 200);
         pane.setVisible(true);
         // pane.setSize(400, 200);
-
         studyButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
-                if (!flashcardsList.isSelectionEmpty()) {
-                    String path = (flashcardsList.getSelectedValue().getPath());
-                    deck = new CardSet(path);
-                    deck.Flashcards();
-                    hide();
+                if (!studySetList.isSelectionEmpty()) {
+                    String selectedFile = (studySetList.getSelectedValue().getPath());
+                    SwingUtilities.invokeLater(() -> new StudyModeSelector(selectedFile, frame, MainMenu.this));
                     
                 }
             }
@@ -88,8 +84,8 @@ public class StartWindow {
         editButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
-                if (!flashcardsList.isSelectionEmpty()) {
-                    java.io.File selectedFile = new java.io.File(flashcardsList.getSelectedValue().getPath());
+                if (!studySetList.isSelectionEmpty()) {
+                    java.io.File selectedFile = new java.io.File(studySetList.getSelectedValue().getPath());
                     SwingUtilities.invokeLater(() -> new EditStudySetPane(selectedFile, frame));
                 }
             }
@@ -170,9 +166,9 @@ public class StartWindow {
     }
 
     private void updateFlashcardList(){
-        list.clear();
+        studySets.clear();
         for (File file : files) {
-            list.addElement(file);
+            studySets.addElement(file);
         }
     }
 

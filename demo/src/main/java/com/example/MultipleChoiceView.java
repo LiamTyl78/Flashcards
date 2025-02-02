@@ -5,21 +5,24 @@ import java.util.*;
 import java.awt.event.*;
 
 
-public class Flashcard {
+public class MultipleChoiceView {
+    private static final int FRAME_WIDTH = 700;
+    private static final int FRAME_HEIGHT = 500;
+
     private JFrame f = new JFrame();
-    private CardSet deck;
+    private MultipleChoiceModel model;
     private JTextArea quesLabel;
     private JLabel image;
     private JButton ans1 = new JButton(), ans2 = new JButton(), ans3 = new JButton(), ans4 = new JButton(), backButton = new JButton("Back");
     private boolean buttonsInit = false;
-    private StartWindow start;
+    private MainMenu start;
 
-    public Flashcard(CardSet deck) {
+    public MultipleChoiceView(MultipleChoiceModel model) {
         image = new JLabel();
-        this.deck = deck;
+        this.model = model;
         this.start = App.start;
         quesLabel = new JTextArea();
-        f.setSize(700, 500);
+        f.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setResizable(false);
         f.setLayout(null);
@@ -45,7 +48,7 @@ public class Flashcard {
         
     }
 
-    public void updateFlashcard(String filepath,String question){
+    public void update(String filepath,String question){
         quesLabel.setText(question);
         
         if (!(filepath.equals("na"))) {
@@ -109,28 +112,28 @@ public class Flashcard {
             ans1.addActionListener(new ActionListener() { 
                 public void actionPerformed(ActionEvent e) 
                 {
-                    deck.checkAnswer(1);
+                    model.checkAnswer(1);
                 } 
             }); 
             f.add(ans1);
             ans2.addActionListener(new ActionListener() { 
                 public void actionPerformed(ActionEvent e) 
                 {
-                    deck.checkAnswer(2);
+                    model.checkAnswer(2);
                 } 
             }); 
             f.add(ans2);
             ans3.addActionListener(new ActionListener() { 
                 public void actionPerformed(ActionEvent e) 
                 {
-                    deck.checkAnswer(3);
+                    model.checkAnswer(3);
                 } 
             }); 
             f.add(ans3);
             ans4.addActionListener(new ActionListener() { 
                 public void actionPerformed(ActionEvent e) 
                 {
-                    deck.checkAnswer(4);
+                    model.checkAnswer(4);
                 } 
             }); 
             f.add(ans4);

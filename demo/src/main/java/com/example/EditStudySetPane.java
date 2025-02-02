@@ -27,14 +27,14 @@ import javax.swing.JTextField;
 public class EditStudySetPane {
     private static final int FRAME_WIDTH = 400;
     private static final int FRAME_HEIGHT = 500;
-    private static final int MAX_IMAGE_SIZE = 100;
+    private static final int MAX_IMAGE_SIZE = 200;
     private static final String TERM_PLACEHOLDER = "Term...";
     private static final String DEFINITION_PLACEHOLDER = "Definition...";
-    
+
     private JDialog frame;
     private JPanel cardSetPanel, buttonPanel;
     private int questionFields;
-    private ArrayList<Question> questions = new ArrayList<>();
+    private ArrayList<Card> questions = new ArrayList<>();
     private ArrayList<JTextField> defFields = new ArrayList<>();
     private ArrayList<JTextField> termFields = new ArrayList<>();
     private ArrayList<StringBuilder> imageFields = new ArrayList<>();
@@ -49,6 +49,7 @@ public class EditStudySetPane {
         frame = new JDialog(parent, "Editing " + removeFileExtension(cardset.getName()), true);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setResizable(false);
+        frame.setLocationRelativeTo(parent);
         frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         frame.setLayout(new BorderLayout());
 
@@ -58,8 +59,8 @@ public class EditStudySetPane {
         cardSetPanel.setLayout(new BoxLayout(cardSetPanel, BoxLayout.Y_AXIS));
 
         while (questionFields < questionNum) {
-            String term = questions.get(questionFields).getAnswer();
-            String definition = questions.get(questionFields).getQuestion();
+            String term = questions.get(questionFields).getTerm();
+            String definition = questions.get(questionFields).getDefinition();
             StringBuilder imgPath = new StringBuilder();
             imgPath.append(questions.get(questionFields).getImageLink());
             addFlashcardFields(term, definition, imgPath);
@@ -105,7 +106,7 @@ public class EditStudySetPane {
 
     }
 
-    private void addFlashcardFields(String term, String definition, StringBuilder imagePath) {
+    private void addFlashcardFields( String definition, String term, StringBuilder imagePath) {
         JPanel questionPanel = new JPanel();
         questionPanel.setLayout(new BoxLayout(questionPanel, BoxLayout.Y_AXIS));
         JLabel termLabel = new JLabel("Term:");
@@ -179,11 +180,7 @@ public class EditStudySetPane {
         }
 
         selectImageButton.addActionListener(e -> selectImage(image, imagePath));
-        selectImageButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                
-            }
-        });
+
 
         termFields.add(termTextField);
         defFields.add(defTextField);
@@ -244,7 +241,7 @@ public class EditStudySetPane {
                     String definition = parts[0];
                     String term = parts[1];
                     String image = parts[2];
-                    questions.add(new Question(term, definition, image));
+                    questions.add(new Card(term, definition, image));
                 }
             }
             sc.close();
@@ -268,8 +265,8 @@ public class EditStudySetPane {
             if (definition.equals(DEFINITION_PLACEHOLDER)) {
                 definition = "na";
             }
-            if (!term.equals("na") || !definition.equals("na")) {
-                flashcards.add(new String[] { term, definition, image });
+            if (!term.equals("na")) {
+                flashcards.add(new String[] { definition, term, image });
             }
         }
         return flashcards;
@@ -282,11 +279,7 @@ public class EditStudySetPane {
         try {
             java.io.PrintWriter writer = new java.io.PrintWriter(file);
             writer.println("Definition,Term,Image_Path");
-            int i = 1;
-            for (String[] flashcard : flashcards) {
-                writer.println(flashcard[0] + "," + flashcard[1] + "," + flashcard[2] + ",");
-                System.out.println("Question " + i++ + " saved.");
-            }
+            flashcards.forEach(flashcard -> writer.println(flashcard[0] + "," + flashcard[1] + "," + flashcard[2] + ","));
             writer.close();
         } catch (Exception e) {
             e.printStackTrace();
