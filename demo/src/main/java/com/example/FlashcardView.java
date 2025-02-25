@@ -62,7 +62,7 @@ public class FlashcardView {
         });
 
         //setup buttons and thier action listeners
-        quitButton = new JButton("Back");
+        quitButton = new JButton("Exit");
         // backButton.setPreferredSize(new Dimension(150,25));
         // backButton.setMinimumSize(new Dimension(150,25));
         quitButton.setMaximumSize(new Dimension(150,25));
@@ -104,10 +104,12 @@ public class FlashcardView {
 
         frame.add(flashcardPanel);
         frame.setVisible(true);
+
     }
 
-    public void update(Card currentFlashcard) {
+    public void update(Card currentFlashcard, int index) {
         this.currentFlashcard = currentFlashcard;
+        frame.setTitle("Flashcard " + (index + 1) + " of " + controller.getDeckSize());
     }
 
     public void displaySide(boolean termDisplayed){

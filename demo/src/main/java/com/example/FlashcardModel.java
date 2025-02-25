@@ -5,13 +5,14 @@ import java.util.Scanner;
 import java.io.File;
 
 
-public class FlashcardModel{
+public class FlashcardModel extends StudyMode{
     private ArrayList<Card> flashcards = new ArrayList<>();
     private int currentIndex = 0;
     private boolean termDisplayed = true, termDisplayedFirst;
     
     public FlashcardModel(String filePath, boolean termDisplayedFirst){
         loadData(filePath);
+        super.shuffle(flashcards);
         this.termDisplayedFirst = termDisplayedFirst;
     }
 
@@ -66,6 +67,16 @@ public class FlashcardModel{
     public boolean getFirstDisplayed(){
         return termDisplayedFirst;
     }
+
+    public int getCurrentIndex(){
+        return currentIndex;
+    }   
+
+    public int getFlashcardsSize(){
+        return flashcards.size();
+    }
+
+    
 
     
 }

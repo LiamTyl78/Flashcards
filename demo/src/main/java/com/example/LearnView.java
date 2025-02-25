@@ -5,19 +5,23 @@ import java.util.*;
 import java.awt.event.*;
 
 
-public class MultipleChoiceView {
+public class LearnView {
     private static final int FRAME_WIDTH = 700;
     private static final int FRAME_HEIGHT = 500;
 
     private JFrame f = new JFrame();
-    private MultipleChoiceModel model;
+    private LearnModel model;
     private JTextArea quesLabel;
     private JLabel image;
     private JButton ans1 = new JButton(), ans2 = new JButton(), ans3 = new JButton(), ans4 = new JButton(), backButton = new JButton("Back");
     private boolean buttonsInit = false;
     private MainMenu start;
 
-    public MultipleChoiceView(MultipleChoiceModel model) {
+    /**
+     * Constructor for LearnView
+     * @param model
+     */
+    public LearnView(LearnModel model) {
         image = new JLabel();
         this.model = model;
         this.start = App.start;
@@ -30,10 +34,13 @@ public class MultipleChoiceView {
         backButton.addActionListener(new ActionListener() { 
             public void actionPerformed(ActionEvent e) 
             {
-                hide();
+                model.saveProgress();
+                dispose();
                 start.show();
             } 
         });
+
+        
 
         quesLabel.setVisible(true);
         quesLabel.setLineWrap(true);
@@ -47,7 +54,12 @@ public class MultipleChoiceView {
         image.setVisible(true);
         
     }
-
+    
+    /**
+     * Updates the question and image
+     * @param filepath
+     * @param question
+     */
     public void update(String filepath,String question){
         quesLabel.setText(question);
         
@@ -71,6 +83,11 @@ public class MultipleChoiceView {
         }
     }
 
+    /**
+     * Sets the buttons for the multiple choice question
+     * @param answers
+     * @param buttonsShown
+     */
     public void setButtons(ArrayList<String> answers, int buttonsShown){
         for (int i = 0; i < answers.size(); i++) {
             if (answers.get(i).equals("na")) {
@@ -85,7 +102,6 @@ public class MultipleChoiceView {
         ans3.setText("");
         ans4.setEnabled(false);
         ans4.setText("");
-        System.err.println(buttonsShown);
         if(buttonsShown >= 1){
             ans1.setEnabled(true);
             ans1.setText(answers.get(0));
@@ -145,7 +161,7 @@ public class MultipleChoiceView {
                "", JOptionPane.ERROR_MESSAGE);
     }
 
-    public void correct(String message){
+    public void displayMessage(String message){
         JOptionPane.showMessageDialog(f, message,
                "", JOptionPane.PLAIN_MESSAGE);
     }
@@ -163,7 +179,8 @@ public class MultipleChoiceView {
         f.dispose();
     }
 
-    public void setTitle(int quesNumber, int totalQues){
-        f.setTitle("Question " + (quesNumber + 1) + " of " + totalQues);
+    public void setTitle(int termsLeft, int totalQues){
+        f.setTitle( "Term " + termsLeft + " of " + totalQues);
     }
+    
 }

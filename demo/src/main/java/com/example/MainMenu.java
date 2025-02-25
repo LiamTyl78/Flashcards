@@ -86,7 +86,7 @@ public class MainMenu {
             {
                 if (!studySetList.isSelectionEmpty()) {
                     java.io.File selectedFile = new java.io.File(studySetList.getSelectedValue().getPath());
-                    SwingUtilities.invokeLater(() -> new EditStudySetPane(selectedFile, frame));
+                    SwingUtilities.invokeLater(() -> new EditPane(selectedFile, frame));
                 }
             }
         });
@@ -108,15 +108,7 @@ public class MainMenu {
         frame.setVisible(false);
     }
 
-    public void incorrect(String message){
-        JOptionPane.showMessageDialog(frame, message,
-               "", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public void correct(String message){
-        JOptionPane.showMessageDialog(frame, message,
-               "", JOptionPane.PLAIN_MESSAGE);
-    }
+    
 
     private ArrayList<File> readFlashcardSets(){
         ArrayList<File> files = new ArrayList<>();

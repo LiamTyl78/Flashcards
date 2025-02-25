@@ -24,7 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-public class EditStudySetPane {
+public class EditPane {
     private static final int FRAME_WIDTH = 400;
     private static final int FRAME_HEIGHT = 500;
     private static final int MAX_IMAGE_SIZE = 200;
@@ -45,7 +45,7 @@ public class EditStudySetPane {
      * 
      * @param cardset the file to be edited
      */
-    public EditStudySetPane(File cardset, JFrame parent) {
+    public EditPane(File cardset, JFrame parent) {
         frame = new JDialog(parent, "Editing " + removeFileExtension(cardset.getName()), true);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setResizable(false);

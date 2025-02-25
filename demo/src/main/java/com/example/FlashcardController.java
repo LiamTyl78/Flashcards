@@ -1,6 +1,6 @@
 package com.example;
 
-public class FlashcardController implements StudyMode{
+public class FlashcardController extends StudyMode{
     private FlashcardView view;
     private FlashcardModel model;
     private MainMenu mainMenu;
@@ -9,7 +9,7 @@ public class FlashcardController implements StudyMode{
         this.model = new FlashcardModel(filePath, false);
         this.view = new FlashcardView(this);
         this.mainMenu = mainMenu;
-        view.update(model.getCurrentFlashcard());
+        view.update(model.getCurrentFlashcard(), model.getCurrentIndex());
         view.displaySide(false);
     }
 
@@ -19,12 +19,12 @@ public class FlashcardController implements StudyMode{
     }
 
     public void handleNextButton(){
-        view.update(model.loadNextFlashcard());
+        view.update(model.loadNextFlashcard(), model.getCurrentIndex());
         view.displaySide(false);
     }
 
     public void handlePrevButton(){
-        view.update(model.loadPreviousFlashcard());
+        view.update(model.loadPreviousFlashcard(), model.getCurrentIndex());
         view.displaySide(false);
     }
 
@@ -32,8 +32,7 @@ public class FlashcardController implements StudyMode{
         view.displaySide(model.flipFlashcard());
     }
 
-    @Override
-    public void startMode() {
-
+    public int getDeckSize(){
+        return model.getFlashcardsSize();
     }
 }

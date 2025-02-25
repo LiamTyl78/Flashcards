@@ -20,10 +20,12 @@ public class StudyModeSelector {
     private JDialog frame;
     private JPanel panel;
     private MainMenu mainMenu;
+    private JButton flashcardsButton, learnModeButton, resetButton;
 
     
     public StudyModeSelector(String filePath, JFrame parent, MainMenu mainMenu){
         //initialize the components and window elements along with referencing the main menu window
+        LearnModel learnDeck = new LearnModel(filePath);
         this.mainMenu = mainMenu;
         frame = new JDialog(parent, "", true);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -33,15 +35,16 @@ public class StudyModeSelector {
         panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         JLabel label = new JLabel("How do you want to study this set?");
-        JButton flashcardsButton = new JButton("Flashcards");
-        JButton multipleChoiceButton = new JButton("Multiple Choice");
-        
-        multipleChoiceButton.setSize(150, 40);
-        multipleChoiceButton.addActionListener(new ActionListener() {
+        JLabel learnProgressLabel = new JLabel(learnDeck.getKnownCards() + " out of " + learnDeck.getTotalCards() + " studied");
+        flashcardsButton = new JButton("Flashcards");
+        learnModeButton = new JButton("Learn");
+        resetButton = new JButton("Reset Progress");
+
+        learnModeButton.setSize(150, 40);
+        learnModeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                StudyMode deck = new MultipleChoiceModel(filePath);
                 close();
-                deck.startMode();
+                learnDeck.startMode();
             }
         });
 
@@ -54,15 +57,31 @@ public class StudyModeSelector {
             }
         });
 
+        resetButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                learnDeck.resetProgress();
+                learnProgressLabel.setText(learnDeck.getKnownCards() + " out of " + learnDeck.getTotalCards() + " studied");
+            }
+        });
+
         //add components and dividers
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(label);
-        panel.add(Box.createVerticalStrut(10));//divider
+        panel.add(Box.createVerticalStrut(2));//divider
         flashcardsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(flashcardsButton);
-        panel.add(Box.createVerticalStrut(10));
-        multipleChoiceButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(multipleChoiceButton);
+        panel.add(Box.createVerticalStrut(2));
+
+        JPanel learnButtonPanel = new JPanel();
+        learnButtonPanel.setLayout(new BoxLayout(learnButtonPanel, BoxLayout.X_AXIS));
+        learnButtonPanel.add(learnModeButton);
+        learnButtonPanel.add(resetButton);
+        learnButtonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(learnButtonPanel);
+        
+        panel.add(Box.createVerticalStrut(2));
+        learnProgressLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(learnProgressLabel);
         frame.add(panel);
         frame.setVisible(true);
 
